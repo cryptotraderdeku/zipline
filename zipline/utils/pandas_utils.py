@@ -218,10 +218,17 @@ def ignore_pandas_nan_categorical_warning():
         )
         yield
 
-
-_INDEXER_NAMES = [
-    '_' + name for (name, _) in pd.core.indexing.get_indexers_list()
-]
+try:
+    _INDEXER_NAMES = [
+        '_' + name for (name, _) in pd.core.indexing.get_indexers_list()
+    ]
+except AttributeError:
+    # Pandas >= 1.0.0 removed get_indexers_list() and we have a mixin class instead.
+    _INDEXER_NAMES = [
+        '_' + i
+        for i in pd.core.indexing.IndexingMixin.__dict__.keys()
+        if not i.startswith("_")
+    ]
 
 
 def clear_dataframe_indexer_caches(df):
